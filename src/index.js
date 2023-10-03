@@ -14,40 +14,40 @@ const refs = {
 };
 
 const { selector, divCatInfo, loader, error } = refs;
-
+//приховуємо початкові рядки
 loader.classList.replace('loader', 'is-hidden');
 error.classList.add('is-hidden');
 divCatInfo.classList.add('is-hidden');
 
-let arrBreedsId = [];
+let arrBreedsId = []; // створюємо масив для списку котів
 fetchBreeds()
   .then(data => {
     data.forEach(element => {
       arrBreedsId.push({ text: element.name, value: element.id });
-    });
+    }); // отримали дані про котів з допомогою fetchBreeds та  запушили їх в масив arrBreedsId
     new SlimSelect({
       select: selector,
       data: arrBreedsId,
-    });
+    }); //  підключили випадаючий список
   })
-  .catch(onFetchError);
+  .catch(onFetchError); // якщо буде помилка викликаємо функцію onFetchError
 
-selector.addEventListener('change', onSelectBreed);
+selector.addEventListener('change', onSelectBreed); // вішаємо прослуховувач, який буде викликати onSelectBreed у випадку зміни вибору в списку
 
 function onSelectBreed(event) {
   event.preventDefault();
-  loader.classList.replace('is-hidden', 'loader');
-  selector.classList.add('is-hidden');
-  divCatInfo.classList.add('is-hidden');
+  loader.classList.replace('is-hidden', 'loader'); // заміна класів is-hidden на loader
+  selector.classList.add('is-hidden'); // приховуємо випадаючий список порід
+  divCatInfo.classList.add('is-hidden'); // приховуємо контейнер з інфою про котів
 
-  const breedId = event.currentTarget.value;
-  fetchCatByBreed(breedId)
+  const breedId = event.currentTarget.value; // дістаємо значення вибране користувачем з події change
+  fetchCatByBreed(breedId) // отримуємо дані обраної кішки
     .then(data => {
       loader.classList.replace('loader', 'is-hidden');
-      selector.classList.remove('is-hidden');
+      selector.classList.remove('is-hidden'); //  показуємо випадаючий список
       const { url, breeds } = data[0];
 
-      const catInfoHtml = data
+      const createMarkup = data
         .map(
           cat => `
     <div class="box-img"><img src="${cat.url}" alt="${cat.breeds[0].name}" width="600"/></div>
@@ -58,12 +58,12 @@ function onSelectBreed(event) {
     </div>
 `
         )
-        .join('');
+        .join(''); // створюємо розмітку для карточки обраної породи кота
 
-      divCatInfo.innerHTML = catInfoHtml;
-      divCatInfo.classList.remove('is-hidden');
+      divCatInfo.innerHTML = createMarkup;
+      divCatInfo.classList.remove('is-hidden'); //показуємо контейнер з інфою
     })
-    .catch(onFetchError);
+    .catch(onFetchError); // обробляємо помилку
 }
 
 function onFetchError(error) {
